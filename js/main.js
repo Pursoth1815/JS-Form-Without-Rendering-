@@ -50,6 +50,13 @@ let editNumber = document.getElementById('editNumber');
 
 let editID = document.getElementById('editID');
 
+let next = document.getElementById('next');
+
+let previous = document.getElementById('previous');
+
+let limit= 3;
+let start= 0;
+
 
 
 /* Validation Process */
@@ -139,6 +146,8 @@ const handleSubmit = (event) => {
     
         const jsonData = JSON.stringify(Object.fromEntries(formData)); // Object Foramtes
 
+        console.log(jsonData);
+
         formData.delete("id");
 
         // console.log('Kaviya data',typeof formData);
@@ -161,42 +170,37 @@ const handleSubmit = (event) => {
 
 /* Fetch Table Data */
 
+async function fetched_Data(limit, start) {
 
-const fetchData =  () => {
+    const fetchDatas = await fetch('DBconnection/fetchData.php', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({start:start, limit:limit}),
+    })
+    const res = await fetchDatas.json();
+    
+    // console.log(res);
+    let html = '';
 
-    fetched_Data();
-
-    async function fetched_Data() {
-
-        const fetchDatas = await fetch('DBconnection/fetchData.php', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        const res = await fetchDatas.json();
+    for( let i of res) {
         
-        // console.log(res);
-        let html = '';
-
-        for( let i of res) {
-            
-            // console.log(i.Name);
-            html += 
-            `<tr>
-                <th scope='row'>${i.ID}</th> 
-                <td>${i.Name}</td> 
-                <td>${i.Mobile}</td> 
-                <td>${i.EMail}</td>
-                <td><a href="">Edit</a></td>
-                <td><a href="">Delete</a></td>
-            </tr>`; 
-            
-        }
-        trData.innerHTML =  html;
+        // console.log(i.Name);
+        html += 
+        `<tr>
+            <th scope='row'>${i.ID}</th> 
+            <td>${i.Name}</td> 
+            <td>${i.Mobile}</td> 
+            <td>${i.EMail}</td>
+            <td><a href="">Edit</a></td>
+            <td><a href="">Delete</a></td>
+        </tr>`; 
         
     }
-
+    trData.innerHTML =  html;
+    
 }
 
 /* Fetch Table Data for Edit and Delete */
@@ -339,10 +343,28 @@ async function gettingEditedResponse(jsonData) {
 
 }
 
+next.addEventListener('click', () => {
+    
+    start += 3;
+    fetched_Data(limit, start);
+})
+
+previous.addEventListener('click', (e) => {
+
+    if(start == 0) {
+        e.preventDefault();
+    }
+    else{
+        start -= 3;
+        fetched_Data(limit, start);
+    }
+    
+})
 
 
 
-document.addEventListener('DOMContentLoaded', fetchData);
+
+document.addEventListener('DOMContentLoaded', fetched_Data(limit, start));
 
 formName.addEventListener('submit', handleSubmit);
 

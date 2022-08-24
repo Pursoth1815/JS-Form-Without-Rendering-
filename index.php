@@ -264,6 +264,10 @@
                 </tbody>
 
             </table>
+            <nav aria-label="Page navigation example">
+                <button id="previous" class="btn btn-primary">Previous</button>
+                <button id="next" class="btn btn-primary">Next</button>
+            </nav>
         </div>
 
     </main>

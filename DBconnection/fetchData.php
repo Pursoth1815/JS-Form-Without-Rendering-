@@ -3,31 +3,43 @@
     // Database connection
     $conn = new mysqli('localhost:8889', 'sa', '', 'nic') or die(mysqli_error($conn));
 
-    $sql = "SELECT * FROM personal_details";
-    $result = $conn->query($sql);
+    $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
 
-
-
-    if ($result->num_rows > 0) {
+    if ($contentType === "application/json") {
         
-        // output data of each row
-        $data = array();
+        //Receive the RAW post data.
+        $content = file_get_contents('php://input');
 
-        while($row = mysqli_fetch_assoc($result)) {
-            $data[] = $row;
-        }
+        $decoded = json_decode($content, true);
 
-        // while($row = $result->fetch_assoc()) {
+        
+        $limit = $decoded['limit'];
+        $start = $decoded['start'];
+
+        // $start = ($page - 1) * $limit;
+
+        $sql = "SELECT * FROM personal_details LIMIT $start, $limit";
+        $result = $conn->query($sql);
+
+        // echo"<pre>";
+        // print_r($decoded);
+        // echo"</pre>";
+
+        if ($result->num_rows > 0) {
+        
+            // output data of each row
+            $data = array();
+    
+            while($row = mysqli_fetch_assoc($result)) {
+                $data[] = $row;
+            }
             
-        //     $data = $row;
-
-        // }
-        
-    } else {
-        echo "0 results";
+        } else {
+            echo "0 results";
+        }
+        header('Content-type: application/json');
+        echo json_encode($data);
     }
-    header('Content-type: application/json');
-    echo json_encode($data);
       
     $conn->close();
 ?>
